@@ -1,6 +1,11 @@
-import RPi.GPIO as GPIO
+""" This code is for the rover to be controlled by a controller
+    The controller used is a Xbox 360 controller
+    The controller is connected to the Raspberry Pi via USB
+    A Camera is also connected to the Raspberry Pi
+    Direction of the camera can be controlled by the right analog stick"""
 import math
 import time
+import RPi.GPIO as GPIO
 from controller_class import xbox_controller
 
 # Initialize GPIO pins for motor control
@@ -28,7 +33,7 @@ END = 17
 IN7 = 27
 IN8 = 22
 
-Servo_pin = 23
+SERVO_PIN = 23
 # Set GPIO pins as output
 GPIO.setup(ENA, GPIO.OUT)
 GPIO.setup(IN1, GPIO.OUT)
@@ -42,14 +47,14 @@ GPIO.setup(IN6, GPIO.OUT)
 GPIO.setup(END, GPIO.OUT)
 GPIO.setup(IN7, GPIO.OUT)
 GPIO.setup(IN8, GPIO.OUT)
-GPIO.setup(Servo_pin, GPIO.OUT)
+GPIO.setup(SERVO_PIN, GPIO.OUT)
 
 # Initialize PWM instances for ENA, ENB, ENC and END
 pwm_a = GPIO.PWM(ENA, 100)
 pwm_b = GPIO.PWM(ENB, 100)
 pwm_c = GPIO.PWM(ENC, 100)
 pwm_d = GPIO.PWM(END, 100)
-pwm_servo = GPIO.PWM(Servo_pin, 100)
+pwm_servo = GPIO.PWM(SERVO_PIN, 100)
 """-----------------------------------------------------------------"""
 pwm_a.start(0)
 pwm_b.start(0)
@@ -60,17 +65,20 @@ pwm_servo.start(0)
 xbox = xbox_controller()
 
 def stop_move():
+    """Stops the movement of the rover"""
     pwm_a.ChangeDutyCycle(0)
     pwm_b.ChangeDutyCycle(0)
     pwm_c.ChangeDutyCycle(0)
     pwm_d.ChangeDutyCycle(0)
 
 def speed_cal(x_axis, y_axis):
+    """Calculates the speed of the rover"""
     speed = (math.sqrt(x_axis**2 + y_axis**2)/(math.sqrt(2) * 2**15)) * 100
     #speed = (abs(y_axis)/ (2**15)) * 100
     return speed
 
 def move_forward():
+    """Moves the rover forward"""
     GPIO.output(IN1, GPIO.HIGH)
     GPIO.output(IN2, GPIO.LOW)
     GPIO.output(IN3, GPIO.LOW)
@@ -87,6 +95,7 @@ def move_forward():
     pwm_d.ChangeDutyCycle(25)
 
 def move_back():
+    """Moves the rover backwards"""
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
     GPIO.output(IN3, GPIO.HIGH)
@@ -101,6 +110,7 @@ def move_back():
     pwm_d.ChangeDutyCycle(25)
 
 def move_left():
+    """Moves the rover left"""
     GPIO.output(IN1, GPIO.HIGH)
     GPIO.output(IN2, GPIO.LOW)
     GPIO.output(IN3, GPIO.LOW)
@@ -113,6 +123,7 @@ def move_left():
     pwm_d.ChangeDutyCycle(0)
 
 def move_right():
+    """Moves the rover right"""
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
     GPIO.output(IN3, GPIO.LOW)
@@ -125,39 +136,41 @@ def move_right():
     pwm_d.ChangeDutyCycle(50)
 
 def control_rover(x_axis, y_axis, right_x_axis, right_y_axis):
-    if (y_axis < -512):
-        if (x_axis > -2048 and x_axis < 2048):
+    """Controls the rover"""
+    if y_axis < -512:
+        if x_axis > -2048 and x_axis < 2048:
             move_forward()
             time.sleep(0.1)
             stop_move()
-    elif (y_axis > 512):
-        if (x_axis > -2048 and x_axis < 2048):
+    elif y_axis > 512:
+        if x_axis > -2048 and x_axis < 2048:
             move_back()
             time.sleep(0.1)
             stop_move()
-    elif (y_axis > -512 or y_axis < 512):
-        if (x_axis < -2048):
+    elif y_axis > -512 or y_axis < 512:
+        if x_axis < -2048:
             move_left()
             time.sleep(0.1)
             stop_move()
-        elif (x_axis > 2048):
+        elif x_axis > 2048:
             move_right()
             time.sleep(0.1)
             stop_move()
 
-    if (right_x_axis == 0):
+    if right_x_axis == 0:
         pwm_servo.ChangeDutyCycle(15)
         #time.sleep(1)
-    elif (right_x_axis < -(2**6)):
+    elif right_x_axis < -(2**6):
         pwm_servo.ChangeDutyCycle(2.5)
         time.sleep(0.5)
-    elif (right_x_axis > (2**6)):
+    elif right_x_axis > (2**6):
         pwm_servo.ChangeDutyCycle(24)
         time.sleep(0.5)
 
 #Main Function Below:
-def main():  
-    while(True):
+def main():
+    """Main function"""
+    while True:
         x_axis, y_axis, right_x, right_y = xbox.get_analog()
         control_rover(x_axis, y_axis, right_x, right_y)
 
