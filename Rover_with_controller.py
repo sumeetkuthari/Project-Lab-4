@@ -58,15 +58,18 @@ pwm_d.start(0)
 pwm_servo.start(0)
 #Movement code below:
 xbox = xbox_controller()
+
 def stop_move():
     pwm_a.ChangeDutyCycle(0)
     pwm_b.ChangeDutyCycle(0)
     pwm_c.ChangeDutyCycle(0)
     pwm_d.ChangeDutyCycle(0)
+
 def speed_cal(x_axis, y_axis):
     speed = (math.sqrt(x_axis**2 + y_axis**2)/(math.sqrt(2) * 2**15)) * 100
     #speed = (abs(y_axis)/ (2**15)) * 100
     return speed
+
 def move_forward():
     GPIO.output(IN1, GPIO.HIGH)
     GPIO.output(IN2, GPIO.LOW)
@@ -82,6 +85,7 @@ def move_forward():
     pwm_b.ChangeDutyCycle(25)
     pwm_c.ChangeDutyCycle(25)
     pwm_d.ChangeDutyCycle(25)
+
 def move_back():
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
@@ -91,25 +95,10 @@ def move_back():
     GPIO.output(IN6, GPIO.HIGH)
     GPIO.output(IN7, GPIO.LOW)
     GPIO.output(IN8, GPIO.HIGH)
-    """pwm_a.ChangeDutyCycle(speed_cal(x_axis, y_axis))
-    pwm_b.ChangeDutyCycle(speed_cal(x_axis, y_axis))
-    pwm_c.ChangeDutyCycle(speed_cal(x_axis, y_axis))
-    pwm_d.ChangeDutyCycle(speed_cal(x_axis, y_axis))"""
     pwm_a.ChangeDutyCycle(25)
     pwm_b.ChangeDutyCycle(25)
     pwm_c.ChangeDutyCycle(25)
     pwm_d.ChangeDutyCycle(25)
-"""def control_rover(x_axis, y_axis):
-    if (y_axis < -256):
-        if (x_axis > -2048 and x_axis < 2048):
-            move_forward
-            time.sleep(0.01)
-            stop_move()
-    elif (y_axis > 256):
-        if (x_axis > -2048 and x_axis < 2048):
-            move_back
-            time.sleep(0.01)
-            stop_move()"""
 
 def move_left():
     GPIO.output(IN1, GPIO.HIGH)
@@ -122,6 +111,7 @@ def move_left():
     pwm_b.ChangeDutyCycle(0)
     pwm_c.ChangeDutyCycle(50)
     pwm_d.ChangeDutyCycle(0)
+
 def move_right():
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
@@ -133,6 +123,7 @@ def move_right():
     pwm_b.ChangeDutyCycle(50)
     pwm_c.ChangeDutyCycle(0)
     pwm_d.ChangeDutyCycle(50)
+
 def control_rover(x_axis, y_axis, right_x_axis, right_y_axis):
     if (y_axis < -512):
         if (x_axis > -2048 and x_axis < 2048):
@@ -165,10 +156,10 @@ def control_rover(x_axis, y_axis, right_x_axis, right_y_axis):
         time.sleep(0.5)
 
 #Main Function Below:
-def main():
-    
+def main():  
     while(True):
         x_axis, y_axis, right_x, right_y = xbox.get_analog()
         control_rover(x_axis, y_axis, right_x, right_y)
+
 if __name__ == '__main__':
     main()

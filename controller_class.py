@@ -18,6 +18,7 @@ class xbox_controller:
             if 'Microsoft X-Box 360 pad' in device.name: 
                 return device
         raise IOError('Microsoft X-Box 360 pad')
+    
     def get_analog(self):
         event = self.controller.read_one()
         while event is not None:
